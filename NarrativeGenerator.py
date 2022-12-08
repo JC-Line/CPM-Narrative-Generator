@@ -5,12 +5,6 @@ from fpdf import FPDF
 pdf = FPDF()
 pdf.add_page()
 
-pdf.set_font('Arial')
-pdf.set_font('', 'BU', 12)
-
-pdf.cell(25,80,'test\nnew\nline\nMethod', 1, 0)
-
-pdf.output('testfile.pdf','F')
 # Lane Header #
 
 # Lane Footer #
@@ -68,7 +62,7 @@ lastCutoff = "2022-10-16"
 #   -Build a heading for all categories and create a null result
 #   -Pull data from schedule comparison export csv
 
-activityData = activityData[:50]
+activityData = activityData[:1000]
 
 
 # Iterate through columns and return optimal row widths based on string length
@@ -92,30 +86,35 @@ for row in activityData:
 tableRowHeight = 5
 pdf.set_font('Arial')
 
+# Temp fix for row width
+tableRowWidths = [20,130,20,20]
+pdf.set_xy(float(10),float(10))
 # Print Head of Table
-pdf.set_font('', 'BU', 12)
+pdf.set_font('', 'B', 10)
 for count, value in enumerate(activityDataHeader):
     x = value
+    if count > 0:
+        pdf.set_xy(float(sum(tableRowWidths[0:count])+10),float(10))
+
     if type(value) == type(datetime.datetime.now()):
         x = value.strftime(dateFormat)
 
-    if len(str(x)) > tableRowWidths[count]:
-        strList = str(x).split()
-        x = ''
-        for count, value in enumerate(strList):
-            x += strList[count] + '\n'
+    if (float(len(str(x)))*1.8) > tableRowWidths[count]:
+         pdf.multi_cell(tableRowWidths[count],tableRowHeight,str(x),0,'C')
+         continue
 
-    pdf.cell(tableRowWidths[count]*2, tableRowHeight*3, str(x), 0,0,'C',)
-pdf.ln(tableRowHeight * 2)
-pdf.set_font('', '', 8)
+    pdf.multi_cell(tableRowWidths[count], tableRowHeight*3, str(x), 0,'C',)
 
 # Print Body of Table
-
+pdf.set_font('', '', 8)
 for row in activityData:
     for count, value in enumerate(row):
-        x = value
+        if str(value) == 'None':
+            x = '-'
+        else:
+            x = value
         if type(value) == type(datetime.datetime.now()):
             x = value.strftime(dateFormat)
-        pdf.cell(tableRowWidths[count]*2, tableRowHeight, str(x), 1, 0)
+        pdf.cell(tableRowWidths[count], tableRowHeight, str(x), 1, 0)
     pdf.ln(tableRowHeight)
 pdf.output('NarrativeTest.pdf', 'F')
