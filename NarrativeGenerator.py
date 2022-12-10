@@ -2,8 +2,37 @@ import datetime
 from openpyxl import load_workbook
 from fpdf import FPDF
 
-pdf = FPDF()
-pdf.add_page()
+# Create a function that will return list of all values within an excel sheet
+#   Variables: Worksheet Name
+#   Table Header Row Number
+#   List of column numbers to keep
+def get_ws_vals(ws_name,header_row,col_keep):
+    ws = wb[ws_name]
+    # Variables could be pulled in from TXT file to be dynamic
+    columnsToKeep = col_keep
+    rowMin = header_row
+    rowMax = len(ws['A'])
+    colMax = max(columnsToKeep)
+    colMin = min(columnsToKeep)
+
+
+    data = []
+    dataHeader = []
+    for rowCount, row in enumerate(ws.iter_rows(rowMin, rowMax, colMin, colMax, True), rowMin):
+
+        tempList = []
+        for colCount, value in enumerate(row, colMin):
+            if colCount in columnsToKeep:
+                if rowCount == rowMin:
+                    dataHeader.append(value)
+                else:
+                    tempList.append(value)
+        data.append(tempList)
+    data.pop(0)
+    return dataHeader,data
+
+
+
 
 # Lane Header #
 
@@ -13,11 +42,8 @@ pdf.add_page()
 #   -Bring in using a manually generated txt file with written narrative sections
 #   -Check for existing txt file in current folder, if it doesnt exist create a new file template
 
-# Lists showing started/completed activities #
-#   -Generate from activity csv export
 
-wb = load_workbook('schedule.xlsx')
-activityWS = wb['TASK']
+
 
 
 # Indexes [numbers(1-26), letters(A-Z)]
@@ -30,30 +56,36 @@ while i < 26:
     i += 1
     letterNumberEqList.append(tempList)
 
+# Lists showing started/completed activities #
+#   -Generate from activity csv export
 
-# Variables could be pulled in from TXT file to be dynamic
-tableHeaderRow = 2
-columnsToKeep = [1, 5, 8, 9]
-rowMin = tableHeaderRow
-rowMax = len(activityWS['A'])
-colMax = max(columnsToKeep)
-colMin = min(columnsToKeep)
+wb = load_workbook('schedule.xlsx')
 
 
-activityData = []
-activityDataHeader = []
-for rowCount, row in enumerate(activityWS.iter_rows(rowMin, rowMax, colMin, colMax, True), rowMin):
+# activityWS = wb['TASK']
+# # Variables could be pulled in from TXT file to be dynamic
+# tableHeaderRow = 2
+# columnsToKeep = [1, 5, 8, 9]
+# rowMin = tableHeaderRow
+# rowMax = len(activityWS['A'])
+# colMax = max(columnsToKeep)
+# colMin = min(columnsToKeep)
 
-    tempList = []
-    for colCount, value in enumerate(row, colMin):
-        if colCount in columnsToKeep:
-            if rowCount == rowMin:
-                activityDataHeader.append(value)
-            else:
-                tempList.append(value)
-    activityData.append(tempList)
-activityData.pop(0)
 
+# activityData = []
+# activityDataHeader = []
+# for rowCount, row in enumerate(activityWS.iter_rows(rowMin, rowMax, colMin, colMax, True), rowMin):
+
+#     tempList = []
+#     for colCount, value in enumerate(row, colMin):
+#         if colCount in columnsToKeep:
+#             if rowCount == rowMin:
+#                 activityDataHeader.append(value)
+#             else:
+#                 tempList.append(value)
+#     activityData.append(tempList)
+# activityData.pop(0)
+activityDataHeader,activityData = get_ws_vals("TASK",2,[1,8,9,5])
 
 lastCutoff = "2022-10-16"
 
@@ -61,6 +93,8 @@ lastCutoff = "2022-10-16"
 # Tables showing relationship and activity changes #
 #   -Build a heading for all categories and create a null result
 #   -Pull data from schedule comparison export csv
+pdf = FPDF()
+pdf.add_page()
 
 activityData = activityData[:1000]
 
