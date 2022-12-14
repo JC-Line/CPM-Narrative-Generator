@@ -2,12 +2,31 @@ import datetime
 from openpyxl import load_workbook
 from fpdf import FPDF
 
+
+# Activity class definition
+class Activity:
+    def __init__(self,id,description):
+        self.id = id
+        self.description = description
+        self.successors = set()
+
+    # Find Successors
+    # Pass worksheet converted into values
+    def get_successors(self,successorWS):
+        for row in successorWS:
+            if row[0] != self.id:
+                continue
+            else:
+                self.successors.add(row[1])
+
+
+
+
+
 # Create a function that will return list of all values within an excel sheet
 #   Variables: Worksheet Name
 #   Table Header Row Number
 #   List of column numbers to keep
-
-
 def get_ws_vals(wb, ws_name, header_row, col_keep):
     ws = wb[ws_name]
     # Variables could be pulled in from TXT file to be dynamic
@@ -133,6 +152,9 @@ for row in predList:
         else:
             successor = row1[1]
             row[1].add(successor)
+
+testActivity = Activity("BASE640","Testing Activity Description")
+testActivity.get_successors(predData)
 
 pdf = FPDF()
 pdf.add_page()
