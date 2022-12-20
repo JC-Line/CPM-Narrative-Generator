@@ -4,7 +4,6 @@ from fpdf import FPDF
 
 
 import Activity as Actfile
-Activity = Actfile.Activity
 
 def print_table(colWidths, dataHeader, data):
     dateFormat = '%x'
@@ -48,27 +47,9 @@ oldPredData = WorksheetTable(old_FileName,"TASKPRED")
 newActivityData = WorksheetTable(new_FileName,"TASK")
 newPredData = WorksheetTable(new_FileName,"TASKPRED")
 
+comparison = Actfile.Comparison(oldActivityData,oldPredData,newActivityData,newPredData)
 
-# Create activity dictionary {ID : Activity Obj}
-newActivityDict = {}
-for row in newActivityData.data:
-    id = row[newActivityData.header['Activity ID']]
-    newActivityDict.update({id : Activity(row,newActivityData.header)})
 
-oldActivityDict = {}
-for row in oldActivityData.data:
-    id = row[oldActivityData.header['Activity ID']]
-    oldActivityDict.update({id : Activity(row,oldActivityData.header)})
-
-for row in oldPredData.data:
-    key = row[oldPredData.header['Predecessor']]
-    successor = row[oldPredData.header['Successor']]
-    oldActivityDict[key].successors.add(successor)
-
-for row in newPredData.data:
-    key = row[newPredData.header['Predecessor']]
-    successor = row[newPredData.header['Successor']]
-    newActivityDict[key].successors.add(successor)
 
 
 

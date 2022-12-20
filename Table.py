@@ -22,14 +22,13 @@ class WorksheetTable:
 
             tempList = []
             for colCount, value in enumerate(row, colMin):
-                if colCount in columnsToKeep:
-                    if rowCount == rowMin:
-                        x = value
-                        x = x.replace('(d)','')
-                        x = x.replace('(*)','')
-                        dataHeader.update({x : colCount-1})
-                    else:
-                        tempList.append(value)
+                if rowCount == rowMin:
+                    x = value
+                    x = x.replace('(d)','')
+                    x = x.replace('(*)','')
+                    dataHeader.update({x : colCount-1})
+                else:
+                    tempList.append(value)
             data.append(tempList)
         data.pop(0)
         self.header = dataHeader
