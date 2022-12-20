@@ -18,20 +18,27 @@ class WorksheetTable:
         colMax = max(columnsToKeep)
         data = []
         dataHeader = {}
+        
+        tempHead = [row for row in ws.iter_rows(headerRowNum,headerRowNum,colMin,colMax,True)]
+        tempHead = list(tempHead[0])
+        for colCount, value in enumerate(tempHead):
+            x = value
+            x = x.replace('(d)','')
+            x = x.replace('(*)','')
+            dataHeader.update({x : colCount})
+        self.header = dataHeader
+
         for rowCount, row in enumerate(ws.iter_rows(rowMin, rowMax, colMin, colMax, True), rowMin):
 
             tempList = []
-            for colCount, value in enumerate(row, colMin):
+            for value in row:
                 if rowCount == rowMin:
-                    x = value
-                    x = x.replace('(d)','')
-                    x = x.replace('(*)','')
-                    dataHeader.update({x : colCount-1})
+                    continue
                 else:
                     tempList.append(value)
             data.append(tempList)
         data.pop(0)
-        self.header = dataHeader
+
         self.data = data
 
     # Iterate through columns and return optimal row widths based on string length
