@@ -1,33 +1,38 @@
+import wordDoc
 import datetime
 from openpyxl import load_workbook
 import Activity as Actfile
 from Table import WorksheetTable
 
-old_FileName = '3462-FDOT-Owner-11.xlsx'
-new_FileName = '3462-FDOT-Owner-12.xlsx'
-oldActivityData = WorksheetTable(old_FileName,"TASK")
-oldPredData = WorksheetTable(old_FileName,"TASKPRED")
-newActivityData = WorksheetTable(new_FileName,"TASK")
-newPredData = WorksheetTable(new_FileName,"TASKPRED")
+old_FileName = 'test_old_schedule.xlsx'
+new_FileName = 'test_new_schedule.xlsx'
+oldActivityData = WorksheetTable(old_FileName, "TASK")
+oldPredData = WorksheetTable(old_FileName, "TASKPRED")
+newActivityData = WorksheetTable(new_FileName, "TASK")
+newPredData = WorksheetTable(new_FileName, "TASKPRED")
 
-comparison = Actfile.Comparison(oldActivityData,oldPredData,newActivityData,newPredData)
+newPredData.data = newPredData.data[:900]
 
+comparison = Actfile.Comparison(
+    oldActivityData, oldPredData, newActivityData, newPredData)
 
-
-import wordDoc
 
 WD = wordDoc.WordDoc
 narrative = WD("NarrativeTemplate2.docx")
 
-startedActivities = ('test','data','here')
-completedActivities = ('test','data','here')
-next30Crit = ('act1','act2','act3')
+# Required Inputs
+dataDate = datetime.datetime(2022, 12, 14)
+previousDataDate = datetime.datetime(2022, 11, 14)
+startedActivities = comparison.actBetween(previousDataDate, dataDate, False, 3)
+completedActivities = comparison.actBetween(previousDataDate, dataDate, False, 4)
 
-# NEED TO CREATE A FUNCTION TO GENERATE STARTED AND COMPLETED ACTIVITIES
-narrative.actSC(startedActivities,completedActivities)
-narrative.next30CP(next30Crit)
-actName = comparison.changed_names
-narrative.table_ActivityName(actName[0],actName[1])
+next30CritData = comparison.actBetween(
+    dataDate, dataDate + datetime.timedelta(days=30), True)
+
+narrative.actSC(startedActivities, completedActivities)
+narrative.next30CP(next30CritData)
+narrative.activityMods(comparison.changed_names, comparison.added_activities, comparison.deleted_activities,
+                       comparison.added_successors, comparison.deleted_successors, comparison.changed_durations)
+
 
 narrative.saveFile("wordTest.docx")
-

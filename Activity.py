@@ -8,11 +8,27 @@ class Activity:
         self.name = worksheetTableRow[worksheetHeader['Activity Name']]
         self.data = dict(zip(worksheetHeader, worksheetTableRow))
         self.successors = set()
+        self.critical = self.isCrit()
+        self.start = self.get_data('Start')
+        self.start_actual = self.get_data('Actual Start')
+        self.finish = self.get_data('Finish')
+        self.finish_actual = self.get_data('Actual Finish')
 
     # Return a value from the data dictionary
     def get_data(self, dataKey):
-        value = self.data[dataKey]
+        value = self.data.get(dataKey,None)
         return value
+    
+    # Checks to see if activity is critical
+    def isCrit(self):
+        critStatus = 'Unknown'
+        if self.get_data('Critical') == 'Y':
+            critStatus = 'Critital'
+        if self.get_data('Critical') == 'N':
+            critStatus = 'Normal'
+        return critStatus   
+
+
 
 
 class Comparison:
@@ -50,13 +66,14 @@ class Comparison:
         return [compTableHeader,compTableBody]
     
     def successorTables(self):
-        # Build comparison header
-        succTableHeader = ["Predecessor Activity ID","Predecessor Activity Name", "Successor Activity ID"]
+        # Build  header
+        succTableHeader = ["Predecessor Activity ID","Predecessor Activity Name", "Successor Activity ID" , "Successor Activity Name"]
 
-        # Build comparison body
+        # Create body
         addedSuccessorBody = []
         deletedSuccessorBody = []
         for activityID in self.allIDS:
+            # Create two sets of activity ID's old schedule and new schedule
             oldActivityObj = self.oldData.get(activityID)
             newActivityObj = self.newData.get(activityID)
             
@@ -70,10 +87,11 @@ class Comparison:
             else:
                 newDataValue = newActivityObj.successors
             
+            # Find differences in old/new schedule successors
             addedSuccessors = newDataValue - oldDataValue
             deletedSuccessors = oldDataValue - newDataValue
 
-
+            # Fetch table data for added/deleted successors
             if addedSuccessors != {}:
                 for succID in addedSuccessors:
                     succName = self.newData.get(succID).name
@@ -84,21 +102,82 @@ class Comparison:
                     succName = self.oldData.get(succID).name
                     deletedSuccessorBody.append(
                         [activityID, oldActivityObj.name, succID,succName])
+
         return [succTableHeader,addedSuccessorBody] , [succTableHeader,deletedSuccessorBody]
+    
+    # Returns added and deleted activity tables
+    def activityTables(self):
+        # Header
+        actTableHeader = ['Activity ID', 'Activity Name']
+        # Body
+        oldIDS = set((key for key in self.oldData))
+        newIDS = set((key for key in self.newData))
+
+        addedIDS = self.allIDS - oldIDS
+        deletedIDS = self.allIDS - newIDS 
+        
+        addedIdBody = self.idsToBody(addedIDS)
+        deletedIdBody = self.idsToBody(deletedIDS)
+        return [actTableHeader,addedIdBody] , [actTableHeader,deletedIdBody]
+
+
+
+    # Returns a table of activity data when given a set of activity ID's 
+    # Starting with (Activity ID, Activity Name) + Data fields from passed list
+    def idsToBody(self,ids,dataFields=()):
+        body = []
+        
+        for id in ids:
+            idName = self.allData.get(id).name    
+            # Gather data values from dataFields if provided
+            fieldData = ()
+            if dataFields != ():
+                
+                for count,field in enumerate(dataFields):
+                    currentFieldData = self.allData.get(id).data.get(field[count])
+                    fieldData = fieldData + currentFieldData
+
+            body.append([(id,idName) + fieldData])
+        return body
+            
+
+    # Finds activities in new schedule between two datetimes
+    # Sort perameter values 
+    # 1:activity.start
+    # 2:activity.finish
+    # 3:activity.start_actual
+    # 4:activity.finish_actual
+    def actBetween(self,startDate,endDate,criticalOnly = False,sortPerameter = 1):
+        
+        activities = []
+        for activity in self.newData.values():
+            perameters = {1:activity.start,2:activity.finish,3:activity.start_actual,4:activity.finish_actual}
+            sortDate = perameters[sortPerameter]
+
+            if sortDate == None:
+                continue
+            if sortDate >= startDate and sortDate <= endDate:
+                if criticalOnly == True and activity.critical == False:
+                    continue
+                activities.append(activity.id)
+        return activities
+     
+
+
+
+
+
+
+
+
 
     def __init__(self, oldActivityTable, oldPredTable, newActivityTable, newPredTable):
         self.oldData = self.TableToDict(oldActivityTable, oldPredTable)
         self.newData = self.TableToDict(newActivityTable, newPredTable)
-        self.allIDS = set([key for key in self.oldData] +
-                          [key for key in self.newData])
+        self.allData = self.oldData.copy()
+        self.allData.update(self.newData)
+        self.allIDS = set([key for key in self.allData])
         self.changed_names = self.comparisonTable("Activity Name")
         self.changed_durations = self.comparisonTable("Original Duration")
-        self.added_Successors, self.deleted_Successors = self.successorTables()
-
-
-
-    # Required Comparisons
-    # Changed Activity Names
-    # Changed Duration
-    # Added/Deleted Activities
-    # Added/ Deleted Relationships
+        self.added_successors, self.deleted_successors = self.successorTables()
+        self.added_activities, self.deleted_activities = self.activityTables()
