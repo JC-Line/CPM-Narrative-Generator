@@ -48,7 +48,7 @@ class Comparison:
     # Returns a comparison of the passed data title between new and old schedules in form [[Header] , [body]]
     def comparisonTable(self,dataTitle:str):
         # Build comparison header
-        compTableHeader = ["Activity ID",
+        compTableHeader = ["Activity ID","Activity Name",
                             "Old " + dataTitle, "New " + dataTitle]
 
         # Build comparison body
@@ -62,7 +62,7 @@ class Comparison:
             newDataValue = newActivityObj.data.get(dataTitle)
             if oldDataValue != newDataValue:
                 compTableBody.append(
-                    [activityID, oldDataValue, newDataValue])
+                    [activityID,newActivityObj.name, oldDataValue, newDataValue])
         return [compTableHeader,compTableBody]
     
     def successorTables(self):
@@ -137,7 +137,7 @@ class Comparison:
                     currentFieldData = self.allData.get(id).data.get(field[count])
                     fieldData = fieldData + currentFieldData
 
-            body.append([(id,idName) + fieldData])
+            body.append(list((id,idName) + fieldData))
         return body
             
 
@@ -157,7 +157,7 @@ class Comparison:
             if sortDate == None:
                 continue
             if sortDate >= startDate and sortDate <= endDate:
-                if criticalOnly == True and activity.critical == False:
+                if criticalOnly == True and activity.critical != "Critical":
                     continue
                 activities.append(activity.id)
         return activities

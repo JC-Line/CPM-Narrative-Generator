@@ -3,15 +3,15 @@ from docx import Document
 
 class WordDoc:
 
-    # code to display table inside word file
+   
     def __init__(self, templateName):
         self.document = Document(templateName)
-
+    # code to display table inside word file
     # Bring in user created template file, new data tables will be appended to the file and saved in a new location
     def Table(self, tableHeader, tableBody):
 
         table = self.document.add_table(
-            rows=len(tableBody) + 1, cols=len(tableHeader))
+            rows=1, cols=len(tableHeader))
 
         # Create table header
         hdr_cells = table.rows[0].cells
@@ -19,8 +19,9 @@ class WordDoc:
             hdr_cells[count].text = tableHeader[count]
 
         # Create table body
-        row_cells = table.add_row().cells
+
         for row in tableBody:
+            row_cells = table.add_row().cells
             for count, string in enumerate(row):
                 row_cells[count].text = string
 
