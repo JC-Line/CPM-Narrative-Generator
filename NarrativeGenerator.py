@@ -4,27 +4,18 @@ from openpyxl import load_workbook
 import Activity as Actfile
 from Table import WorksheetTable
 
-old_FileName = '3468-FDOT-Dec.xlsx'
-new_FileName = '3468-FDOT-Jan.xlsx'
+old_FileName = '3462-FDOT-JAN.xlsx'
+new_FileName = '3462-FDOT-Owner-DEC.xlsx'
 oldActivityData = WorksheetTable(old_FileName, "TASK")
 oldPredData = WorksheetTable(old_FileName, "TASKPRED")
 newActivityData = WorksheetTable(new_FileName, "TASK")
 newPredData = WorksheetTable(new_FileName, "TASKPRED")
 
-comparison = Actfile.Comparison(
+c = Actfile.Comparison(
     oldActivityData, oldPredData, newActivityData, newPredData)
 
 
-# Concatenate together activity ID's with any combination of activity.data
-def concatActInfo(ids: list, info: list, separator: str = " - "):
-    concatList = []
-    for actID in ids:
-        concatIdInfo = actID
-        for item in info:
-            concatIdInfo += separator + \
-                comparison.allData.get(actID).get_data(item)
-        concatList.append(concatIdInfo)
-    return concatList
+
 
 
 # Required Inputs
@@ -36,19 +27,19 @@ nextDataDate = dataDate + datetime.timedelta(days=30)
 # Create Word Document
 WD = wordDoc.WordDoc
 narrative = WD("NarrativeTemplate2.docx")
-startedActivities = comparison.actBetween(previousDataDate, dataDate, False, 3)
-completedActivities = comparison.actBetween(
+startedActivities = c.actBetween(previousDataDate, dataDate, False, 3)
+completedActivities = c.actBetween(
     previousDataDate, dataDate, False, 4)
-startedActivities = concatActInfo(startedActivities, ["Activity Name"])
-completedActivities = concatActInfo(completedActivities, ["Activity Name"])
-next30CritData = comparison.actBetween(
+startedActivities = c.concatActInfo(startedActivities, ["Activity Name"])
+completedActivities = c.concatActInfo(completedActivities, ["Activity Name"])
+next30CritData = c.actBetween(
     dataDate, nextDataDate, True)
-next30CritData = concatActInfo(next30CritData, ["Activity Name"])
+next30CritData = c.concatActInfo(next30CritData, ["Activity Name"])
 
 narrative.actSC(startedActivities, completedActivities)
 narrative.next30CP(next30CritData)
-narrative.activityMods(comparison.changed_names, comparison.added_activities, comparison.deleted_activities,
-                       comparison.added_successors, comparison.deleted_successors, comparison.changed_durations)
+narrative.activityMods(c.changed_names, c.added_activities, c.deleted_activities,
+                       c.added_successors, c.deleted_successors, c.changed_durations)
 
 
 narrative.saveFile("wordTest.docx")

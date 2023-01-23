@@ -119,7 +119,17 @@ class Comparison:
         addedIdBody = self.idsToBody(addedIDS)
         deletedIdBody = self.idsToBody(deletedIDS)
         return [actTableHeader,addedIdBody] , [actTableHeader,deletedIdBody]
-
+    
+    # Concatenate together activity ID's with any combination of activity.data
+    def concatActInfo(self,ids: list, info: list, separator: str = " - "):
+        concatList = []
+        for actID in ids:
+            concatIdInfo = actID
+            for item in info:
+                concatIdInfo += separator + \
+                    self.allData.get(actID).get_data(item)
+            concatList.append(concatIdInfo)
+        return concatList
 
 
     # Returns a table of activity data when given a set of activity ID's 
