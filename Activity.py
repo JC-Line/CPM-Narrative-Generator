@@ -23,7 +23,7 @@ class Activity:
     def isCrit(self):
         critStatus = 'Unknown'
         if self.get_data('Critical') == 'Y':
-            critStatus = 'Critital'
+            critStatus = 'Critical'
         if self.get_data('Critical') == 'N':
             critStatus = 'Normal'
         return critStatus   
@@ -153,13 +153,24 @@ class Comparison:
         for activity in self.newData.values():
             perameters = {1:activity.start,2:activity.finish,3:activity.start_actual,4:activity.finish_actual}
             sortDate = perameters[sortPerameter]
+            
+            critStatus = False
+            if activity.critical == "Critical":
+                critStatus = True
 
             if sortDate == None:
                 continue
-            if sortDate >= startDate and sortDate <= endDate:
-                if criticalOnly == True and activity.critical != "Critical":
+
+            if sortDate <= startDate:
+                continue
+            
+            if sortDate >= endDate:
+                continue
+                
+            if criticalOnly == True:
+                if critStatus == False:
                     continue
-                activities.append(activity.id)
+            activities.append(activity.id)
         return activities
      
 
