@@ -5,7 +5,7 @@ import Activity as Actfile
 from Table import WorksheetTable
 
 
-def buildNarrative (old_FileName:str,new_FileName:str,dataDate,previousDataDate,saveLocation):
+def buildNarrative (old_FileName:str,new_FileName:str,dataDate,previousDataDate,saveLocation,templateLocation):
     oldActivityData = WorksheetTable(old_FileName, "TASK")
     oldPredData = WorksheetTable(old_FileName, "TASKPRED")
     newActivityData = WorksheetTable(new_FileName, "TASK")
@@ -24,7 +24,7 @@ def buildNarrative (old_FileName:str,new_FileName:str,dataDate,previousDataDate,
 
     # Create Word Document
     WD = wordDoc.WordDoc
-    narrative = WD("NarrativeTemplate2.docx")
+    narrative = WD(templateName= templateLocation)
     startedActivities = c.actBetween(previousDataDate, dataDate, False, 3)
     completedActivities = c.actBetween(
         previousDataDate, dataDate, False, 4)
