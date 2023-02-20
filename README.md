@@ -17,39 +17,39 @@ Quickly create a word document filled with Narrative information required for mo
     
 ### P6 Export Formatting
 Export must include both Activity and Relationship Data
-    - Activity Data
-        - task_code	
-        - status_code
-        - wbs_id
-        - wbs_name
-        - task_name
-        - critical_flag
-        - start_date
-        - end_date
-        - act_start_date
-        - act_end_date
-        - target_drtn_hr_cnt
-        - act_drtn_hr_cnt
-        - remain_drtn_hr_cnt
-        - total_float_hr_cnt
-        - float_path
-        - resource_list
-    - Relationship Data
-        - pred_task_id
-        - task_id
-        - pred_type
-        - PREDTASK__status_code
-        - TASK__status_code
-        - pred_proj_id
-        - proj_id
-        - predtask__projwbs__wbs_full_name
-        - task__projwbs__wbs_full_name
-        - predtask__task_name
-        - task__task_name
-        - lag_hr_cnt
-        - predtask__rsrc_id
-        - task__rsrc_id
-        - comments
+- Activity Data
+    - task_code	
+    - status_code
+    - wbs_id
+    - wbs_name
+    - task_name
+    - critical_flag
+    - start_date
+    - end_date
+    - act_start_date
+    - act_end_date
+    - target_drtn_hr_cnt
+    - act_drtn_hr_cnt
+    - remain_drtn_hr_cnt
+    - total_float_hr_cnt
+    - float_path
+    - resource_list
+- Relationship Data
+    - pred_task_id
+    - task_id
+    - pred_type
+    - PREDTASK__status_code
+    - TASK__status_code
+    - pred_proj_id
+    - proj_id
+    - predtask__projwbs__wbs_full_name
+    - task__projwbs__wbs_full_name
+    - predtask__task_name
+    - task__task_name
+    - lag_hr_cnt
+    - predtask__rsrc_id
+    - task__rsrc_id
+    - comments
 
 ## Updates Needed
 - Update table formatting
