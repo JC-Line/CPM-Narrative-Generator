@@ -52,4 +52,5 @@ Export must include both Activity and Relationship Data
     - comments
 
 ## Updates Needed
-- Update table formatting
+- Improve .DOCX template functionality
+- Add .XER import capability
